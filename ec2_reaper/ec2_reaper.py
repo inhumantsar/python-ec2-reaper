@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 import boto3
 import logging
+import pytz
+import os
+import datetime
+import time
 
 """EC2 Reaper"""
 
 # set up localtime for logging
-LOCAL_TZ_NAME = os.env.get('LOCAL_TZ_NAME', None)
+LOCAL_TZ_NAME = os.environ.get('LOCAL_TZ_NAME', None)
 if not LOCAL_TZ_NAME:
     LOCAL_TZ = pytz.timezone(time.tzname[time.localtime().tm_isdst])
     LOCAL_TZ_NAME = LOCAL_TZ.tzname(datetime.datetime.now())
@@ -76,8 +80,7 @@ def _check_tags(instance_tags, matching_tags):
     for mt in matching_tags:
         # reap if `tag` is not present and excludes == ['*']
         # eg: {tag: Name, excludes: ['*']}. If it has a Name, don't reap it.
-        if mt.get('excludes') == ['*'] and
-                mt.get('tag') not in [i['Key'] for i in instance_tags]:
+        if mt.get('excludes') == ['*'] and mt.get('tag') not in [i['Key'] for i in instance_tags]:
             log.debug('Tag "{}" not present; instance is reapable.')
             return True
 
@@ -92,8 +95,7 @@ def _check_tags(instance_tags, matching_tags):
                 return True
 
             # tag exists, matches a value in includes, doesn't match any excludes
-            if it.get('Value') in mt.get('includes') and
-                    it.get('Value') not in mt.get('excludes'):
+            if it.get('Value') in mt.get('includes') and it.get('Value') not in mt.get('excludes'):
                 log.debug('Tag "{}" present, its value is in `includes` and not in `excludes`; instance is reapable.')
                 return True
     return False

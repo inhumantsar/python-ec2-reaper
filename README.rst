@@ -24,9 +24,15 @@ CLI & module for terminating instances that match tag and age requirements.
 * Free software: BSD license
 * Documentation: https://ec2-reaper.readthedocs.io.
 
+Testing
+---------
+
+    docker run --rm -it -w /workspace -v $(pwd):/workspace python:2 /bin/bash
+    $ pip install -r requirements.txt -r requirements_dev.txt
+    $ tox -e py27
 
 Features
---------
+---------
 
 * TODO
 
@@ -37,4 +43,3 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
-

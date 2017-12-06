@@ -5,16 +5,24 @@
 import click
 import json
 import logging
+import botocore
+import sys
 
 log = logging.getLogger()
 log.setLevel(logging.WARNING)
 ch = logging.StreamHandler()
 log.addHandler(ch)
 
+try:
+    import ec2_reaper
+except botocore.exceptions.NoCredentialsError as e:
+    log.error('boto3 was unable to find any AWS credentials. Please run `aws configure`')
+    sys.exit(1)
+
+
 @click.command()
 @click.argument('tagfilterstr', type=click.STRING,
-    default='[{"tag": "Name", "include": [], "exclude": ["*"]}]',
-    help='JSON list of tag filters. Default matches all instances with no Name. ie: [{"tag": "Name", "include": [], "exclude": ["*"]}]')
+    default='[{"tag": "Name", "include": [], "exclude": ["*"]}]')
 @click.option('--min-age', '-m', 'min_age', default=300, type=click.INT,
     help='Instance must be (int)N seconds old before it will be considered for termination. Default: 300')
 @click.option('--dry-run', '-d', 'dry_run', is_flag=True,
@@ -54,4 +62,7 @@ def main(tagfilterstr, min_age, dry_run, regions):
 
 
 if __name__ == "__main__":
-    main()
+    if main():
+        sys.exit(0)
+    else:
+        sys.exit(1)

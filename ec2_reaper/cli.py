@@ -25,10 +25,10 @@ except botocore.exceptions.NoCredentialsError as e:
     help='Instance must be (int)N seconds old before it will be considered for termination. Default: 300')
 @click.option('--dry-run', '-d', 'dry_run', is_flag=True,
     help='Enable debug output and skip terminations.')
-@click.option('--regions', '-r', type=click.STRING, default=None,
-    help='One or more regions to search (space-separated). Searches all available regions by default.')
+@click.option('--regions', '-r', type=click.STRING, multiple=True, default=None,
+    help='One or more regions to search. Searches all available regions by default.')
 def main(tagfilterstr, min_age, dry_run, regions):
-    """ec2-reaper [--min-age <seconds>] [--region region-1 region-2 ...] [--dry-run] <JSON filter expression>
+    """ec2-reaper [--min-age <seconds>] [--region region-1 --region region-2 ...] [--dry-run] <JSON filter expression>
 
     Terminate running instances matching tag requirements and a minimum age
 
@@ -56,13 +56,19 @@ def main(tagfilterstr, min_age, dry_run, regions):
     if not regions:
         log.debug('Searching all available regions.')
     else:
+        regions = list(regions) if isinstance(regions, tuple) else regions
+        regions = regions if isinstance(regions, list) else [regions]
+        regions = [r.decode('utf-8') if isinstance(r, unicode) else r for r in regions]
         log.debug('Searching the following regions: {}'.format(regions))
 
-    ec2_reaper.reap(tagfilter, min_age=min_age, debug=dry_run, regions=regions)
+    reaped = len(ec2_reaper.reap(tagfilter, min_age=min_age, debug=dry_run, regions=regions))
 
-
-if __name__ == "__main__":
-    if main():
+    if reaped > 0:
         sys.exit(0)
     else:
         sys.exit(1)
+
+
+
+if __name__ == "__main__":
+    main()

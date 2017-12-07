@@ -60,12 +60,58 @@ def _launch_instances(tags=None):
     log.debug('launched instance: {}'.format(instance))
 
 
-def test_command_line_interface():
-    """Test the CLI."""
+def test_cli_help():
+    """Test the CLI Help."""
     runner = CliRunner()
     help_result = runner.invoke(cli.main, ['--help'])
     assert help_result.exit_code == 0
     assert 'Show this message and exit.' in help_result.output
+
+@mock_ec2
+def test_cli_min_age():
+    ### test with mock instances and defaults
+    runner = CliRunner()
+    _launch_instances()
+    time.sleep(6)
+    result = runner.invoke(cli.main, ['-d', '--min-age', '5'])
+    assert result.exit_code == 0
+
+@mock_ec2
+def test_cli_tagstr():
+    ### test with mock instances and defaults
+    runner = CliRunner()
+    _launch_instances(tags=[{'Key': 'Name', 'Value': 'somename'}])
+    time.sleep(6)
+    result = runner.invoke(cli.main, ['-d', '--min-age', '5', '[{"tag": "Name", "includes": ["somename"], "excludes": []}]'])
+    assert result.exit_code == 0
+
+@mock_ec2
+def test_cli_allregions():
+    """Test the CLI Help."""
+    runner = CliRunner()
+    runner = CliRunner()
+    _launch_instances(tags=[{'Key': 'Name', 'Value': 'somename'}])
+    time.sleep(6)
+    result = runner.invoke(cli.main, ['-d', '--min-age', '5'])
+    assert result.exit_code == 0
+
+@mock_ec2
+def test_cli_oneregion():
+    """Test the CLI Help."""
+    runner = CliRunner()
+    _launch_instances(tags=[{'Key': 'Name', 'Value': 'somename'}])
+    time.sleep(6)
+    result = runner.invoke(cli.main, ['-d', '--min-age', '5', '-r', 'us-east-1'])
+    assert result.exit_code > 0
+
+@mock_ec2
+def test_cli_tworegions():
+    """Test the CLI Help."""
+    runner = CliRunner()
+    _launch_instances(tags=[{'Key': 'Name', 'Value': 'somename'}])
+    time.sleep(6)
+    result = runner.invoke(cli.main, ['-d', '--min-age', '5', '-r', 'us-east-1', '-r', 'us-west-1'])
+    assert result.exit_code == 0
 
 @mock_ec2
 def test_nomatch_tag_nomatch_age():
@@ -75,7 +121,7 @@ def test_nomatch_tag_nomatch_age():
     assert len(reaperlog) == 0
 
 @mock_ec2
-def test_single_match_tag_nomatch_age():
+def test_match_tag_nomatch_age():
     ### test with mock instances and defaults
     _launch_instances()
     reaperlog = ec2_reaper.reap()
@@ -85,7 +131,30 @@ def test_single_match_tag_nomatch_age():
     assert not reaperlog[0]['reaped']
 
 @mock_ec2
-def test_single_nomatch_tag_match_age():
+def test_match_tag_includes():
+    ### test with mock instances and defaults
+    _launch_instances(tags=[{'Key':'Name', 'Value': 'somename'}])
+    reaperlog = ec2_reaper.reap(tags=[{'tag':'Name', 'includes': ['somename'], 'excludes': ['*']}])
+    assert len(reaperlog) == 1
+    assert reaperlog[0]['tag_match']
+    assert not reaperlog[0]['age_match']
+    assert not reaperlog[0]['reaped']
+
+@mock_ec2
+def test_nomatch_tag_excludes():
+    ### test with mock instances and defaults
+    _launch_instances(tags=[{'Key':'Name', 'Value': 'somename'}])
+    time.sleep(6)
+    reaperlog = ec2_reaper.reap(min_age=5, tags=[{'tag':'Name',
+                                                  'includes': ['nothingotmatch'],
+                                                  'excludes': ['somename']}])
+    assert len(reaperlog) == 1
+    assert not reaperlog[0]['tag_match']
+    assert reaperlog[0]['age_match']
+    assert not reaperlog[0]['reaped']
+
+@mock_ec2
+def test_nomatch_tag_match_age():
     ### test with mock instances and defaults
     _launch_instances(tags=[{'Key':'Name', 'Value': 'somename'}])
     time.sleep(6)
@@ -96,7 +165,7 @@ def test_single_nomatch_tag_match_age():
     assert not reaperlog[0]['reaped']
 
 @mock_ec2
-def test_single_match_tag_match_age():
+def test_match_tag_match_age():
     ### test with mock instances and defaults
     _launch_instances()
     time.sleep(6)

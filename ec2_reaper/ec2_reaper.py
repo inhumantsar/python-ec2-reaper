@@ -114,12 +114,12 @@ def _check_tags(instance_tags, matching_tags):
 
             # matching reapme tag exists and is not empty
             if mt.get('includes') == [u'*'] and it.get('Value'):
-                log.debug('Tag "{}" is present and `include` is wildcarded; instance is reapable.')
+                log.debug('Tag "{}" is present and `include` is wildcarded; instance is reapable.'.format(mt.get('tag')))
                 return True
 
             # tag exists, matches a value in includes, doesn't match any excludes
             if it.get('Value') in mt.get('includes') and it.get('Value') not in mt.get('excludes'):
-                log.debug('Tag "{}" present, its value is in `includes` and not in `excludes`; instance is reapable.')
+                log.debug('Tag "{}" present, its value is in `includes` and not in `excludes`; instance is reapable.'.format(mt.get('tag')))
                 return True
     return False
 

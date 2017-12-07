@@ -13,8 +13,15 @@ log.setLevel(logging.WARNING)
 ch = logging.StreamHandler()
 log.addHandler(ch)
 
+
+def _is_py3():
+    return True if sys.version_info >= (3, 0) else False
+
 try:
-    import ec2_reaper
+    if _is_py3():
+        from ec2_reaper import ec2_reaper
+    else:
+        import ec2_reaper
 except botocore.exceptions.NoCredentialsError as e:
     log.error('boto3 was unable to find any AWS credentials. Please run `aws configure`')
     sys.exit(1)
@@ -58,7 +65,8 @@ def main(tagfilterstr, min_age, dry_run, regions):
     else:
         regions = list(regions) if isinstance(regions, tuple) else regions
         regions = regions if isinstance(regions, list) else [regions]
-        regions = [r.decode('utf-8') if isinstance(r, unicode) else r for r in regions]
+        regions = [r.decode('utf-8') if not _is_py3() and \
+                   isinstance(r, unicode) else r for r in regions]
         log.debug('Searching the following regions: {}'.format(regions))
 
     reaped = len(ec2_reaper.reap(tagfilter, min_age=min_age, debug=dry_run, regions=regions))
@@ -67,7 +75,6 @@ def main(tagfilterstr, min_age, dry_run, regions):
         sys.exit(0)
     else:
         sys.exit(1)
-
 
 
 if __name__ == "__main__":

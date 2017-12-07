@@ -6,6 +6,7 @@
 import pytest
 import boto3
 import time
+from datetime import datetime, timedelta
 
 from moto import mock_ec2
 from click.testing import CliRunner
@@ -20,7 +21,6 @@ log.setLevel(logging.DEBUG)
 
 logging.getLogger('boto3').setLevel(logging.CRITICAL)
 logging.getLogger('botocore').setLevel(logging.CRITICAL)
-
 
 @pytest.fixture
 def response():
@@ -44,24 +44,20 @@ def _launch_instances(tags=None):
     '''
     ami_id = 'ami-1234abcd'
     client = boto3.client('ec2', region_name='us-west-1')
-    instance = client.run_instances(ImageId=ami_id, MinCount=1, MaxCount=1)['Instances'][0]
+    params = {'ImageId': ami_id, 'MinCount': 1, 'MaxCount': 1}
+    if tags:
+        params['TagSpecifications'] = [{'ResourceType': 'instance', 'Tags': tags}]
+    instance = client.run_instances(**params)['Instances'][0]
 
-    log.debug('launching instance: {}'.format(instance))
+    instance['State']['Code'] = 16
+    instance['State']['Name'] = 'running'
 
-    # bad_states = ['shutting-down', 'terminated', 'stopping', 'stopped']
-    # s = 0
-    # while instance['State']['Name'] != u'running':
-    #     log.debug('Instance not alive yet (seconds waited: {}. state: {}), sleeping...'.format(s, instance['State']['Name']))
-    #     time.sleep(0.5)
-    #     s += 0.5
-    #     if instance['State']['Name'] in bad_states:
-    #         raise Exception('Test instance entered a bad state.')
-
+    instance = boto3.resource('ec2').Instance(instance[u'InstanceId'])
     if tags:
         log.debug('creating tags: {}'.format(tags))
         instance.create_tags(Tags=tags)
 
-
+    log.debug('launched instance: {}'.format(instance))
 
 
 def test_command_line_interface():
@@ -72,17 +68,40 @@ def test_command_line_interface():
     assert 'Show this message and exit.' in help_result.output
 
 @mock_ec2
-def test_default_with_instances():
+def test_nomatch_tag_nomatch_age():
     ### test with mock instances and defaults
-    runner = CliRunner()
-    _launch_instances()
-    result = runner.invoke(cli.main)
-    assert result.exit_code == 0
+    _launch_instances(tags=[{'Key':'Name', 'Value': 'somename'}])
+    reaperlog = ec2_reaper.reap()
+    assert len(reaperlog) == 0
 
 @mock_ec2
-def test_default_without_instances():
+def test_single_match_tag_nomatch_age():
     ### test with mock instances and defaults
-    runner = CliRunner()
-    # _launch_instances()
-    result = runner.invoke(cli.main)
-    assert result.exit_code == 0
+    _launch_instances()
+    reaperlog = ec2_reaper.reap()
+    assert len(reaperlog) == 1
+    assert reaperlog[0]['tag_match']
+    assert not reaperlog[0]['age_match']
+    assert not reaperlog[0]['reaped']
+
+@mock_ec2
+def test_single_nomatch_tag_match_age():
+    ### test with mock instances and defaults
+    _launch_instances(tags=[{'Key':'Name', 'Value': 'somename'}])
+    time.sleep(6)
+    reaperlog = ec2_reaper.reap(min_age=5)
+    assert len(reaperlog) == 1
+    assert not reaperlog[0]['tag_match']
+    assert reaperlog[0]['age_match']
+    assert not reaperlog[0]['reaped']
+
+@mock_ec2
+def test_single_match_tag_match_age():
+    ### test with mock instances and defaults
+    _launch_instances()
+    time.sleep(6)
+    reaperlog = ec2_reaper.reap(min_age=5)
+    assert len(reaperlog) == 1
+    assert reaperlog[0]['tag_match']
+    assert reaperlog[0]['age_match']
+    assert reaperlog[0]['reaped']

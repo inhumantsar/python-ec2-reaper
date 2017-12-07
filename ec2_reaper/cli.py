@@ -19,10 +19,8 @@ except botocore.exceptions.NoCredentialsError as e:
     log.error('boto3 was unable to find any AWS credentials. Please run `aws configure`')
     sys.exit(1)
 
-
 @click.command()
-@click.argument('tagfilterstr', type=click.STRING,
-    default='[{"tag": "Name", "include": [], "exclude": ["*"]}]')
+@click.argument('tagfilterstr', type=click.STRING, default=json.dumps(ec2_reaper.DEFAULT_TAG_MATCHER))
 @click.option('--min-age', '-m', 'min_age', default=300, type=click.INT,
     help='Instance must be (int)N seconds old before it will be considered for termination. Default: 300')
 @click.option('--dry-run', '-d', 'dry_run', is_flag=True,
@@ -33,6 +31,8 @@ def main(tagfilterstr, min_age, dry_run, regions):
     """ec2-reaper [--min-age <seconds>] [--region region-1 region-2 ...] [--dry-run] <JSON filter expression>
 
     Terminate running instances matching tag requirements and a minimum age
+
+    Default filter: [{"tag": "Name", "includes": [], "excludes": ["*"]}]
 
     Filter Behaviour:
     - An instance is reaped if tag value is in the include list

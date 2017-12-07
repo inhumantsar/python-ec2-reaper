@@ -3,11 +3,10 @@
 
 language: python
 python:
+  - 3.6
   - 3.5
   - 3.4
-  - 3.3
   - 2.7
-  - 2.6
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: pip install -U tox-travis
@@ -22,8 +21,6 @@ deploy:
   distributions: sdist bdist_wheel
   user: inhumantsar
   password:
-    secure: PLEASE_REPLACE_ME
+    secure: G7l5MBcSihdkWYzhKpY2pre17arWGic6lekP921rkj0XXCCneFHfSuyGZYEqpnzf5fvllz7SN3uAR5wjZbtjSUrmpXfQYTp23IeqMluzSU5myUzK920NHMiejrxkdfV/6OIrS1akwNm1xqttiQZjKsB4faobwRDQsid/yr6IB6vvWpEOoruEGOsXs+xvCLTARobSyukAsUKMmAmYTY8oYh4JQKrCOwDfY6Wg4dtHgue54jwYWBTajU3mSyzpfS9wlKySMUv7z6RX4IB+NXseSkycc+0JV21MLVNWVY7vtf8xNgkW+ftQynsuSyNTwVdA2sLD+Z9HwfcWjWvjRQ9XWnnm3wkN+FfqEcpNgp6lOvl236cin2KhJxk2Lm2M5ROnQN/30poeTmdGmqvAF7M7i+4vC21mrotDyMQOQAEtYZRhR2sI2IRFisBvL2VPY+lEH49cUZHru+tBbEsVMkNohLYJDGiLH8oN6OG9FKq3ntEaRr6/v4BlT7sITY7kLZRkzEj9MSwom25jitLnyUuBiW3SqWlNrZHXJoXkTKeJkjWcHyBwMGTNf17E0JdwO2WOKjFvSFHOVAAhUEyoYsA2W/wumWd+bvnbMp0ept8dskqd8hu1JRS66lwexSY88SEZBE6HfaD4FhoVD33wccBdf6AxssJUUFn45WQ/1MhxJUk=
   on:
     tags: true
-    repo: inhumantsar/ec2_reaper
-    python: 2.7

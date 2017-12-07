@@ -43,7 +43,7 @@ def _launch_instances(tags=None):
     tags must be in `[{'Key':'somekey', 'Value': 'someval'}, ...]` format
     '''
     ami_id = 'ami-1234abcd'
-    client = boto3.client('ec2', region_name='us-west-1')
+    client = boto3.client('ec2', region_name='us-west-2')
     params = {'ImageId': ami_id, 'MinCount': 1, 'MaxCount': 1}
     if tags:
         params['TagSpecifications'] = [{'ResourceType': 'instance', 'Tags': tags}]
@@ -52,7 +52,7 @@ def _launch_instances(tags=None):
     instance['State']['Code'] = 16
     instance['State']['Name'] = 'running'
 
-    instance = boto3.resource('ec2').Instance(instance[u'InstanceId'])
+    instance = boto3.resource('ec2', region_name='us-west-2').Instance(instance[u'InstanceId'])
     if tags:
         log.debug('creating tags: {}'.format(tags))
         instance.create_tags(Tags=tags)
@@ -101,6 +101,7 @@ def test_cli_oneregion():
     runner = CliRunner()
     _launch_instances(tags=[{'Key': 'Name', 'Value': 'somename'}])
     time.sleep(6)
+    # instance launches into us-west-2
     result = runner.invoke(cli.main, ['-d', '--min-age', '5', '-r', 'us-east-1'])
     assert result.exit_code > 0
 
@@ -110,7 +111,7 @@ def test_cli_tworegions():
     runner = CliRunner()
     _launch_instances(tags=[{'Key': 'Name', 'Value': 'somename'}])
     time.sleep(6)
-    result = runner.invoke(cli.main, ['-d', '--min-age', '5', '-r', 'us-east-1', '-r', 'us-west-1'])
+    result = runner.invoke(cli.main, ['-d', '--min-age', '5', '-r', 'us-east-1', '-r', 'us-west-2'])
     assert result.exit_code == 0
 
 @mock_ec2

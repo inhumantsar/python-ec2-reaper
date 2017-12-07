@@ -11,24 +11,24 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [
-    'Click>=6.0',
-    # TODO: put package requirements here
-]
+with open('VERSION') as version_file:
+    version = version_file.read()
+
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
 
 setup_requirements = [
     'pytest-runner',
     # TODO(inhumantsar): put setup requirements (distutils extensions, etc.) here
 ]
 
-test_requirements = [
-    'pytest',
-    # TODO: put package test requirements here
-]
+with open('requirements_dev.txt') as f:
+    requirements_dev = f.read().splitlines()
+
 
 setup(
-    name='ec2_reaper',
-    version='0.1.0',
+    name='ec2-reaper',
+    version=version,
     description="CLI & module for terminating instances that match tag and age requirements.",
     long_description=readme + '\n\n' + history,
     author="Shaun Martin",
@@ -37,14 +37,14 @@ setup(
     packages=find_packages(include=['ec2_reaper']),
     entry_points={
         'console_scripts': [
-            'ec2_reaper=ec2_reaper.cli:main'
+            'ec2-reaper=ec2_reaper.cli:main'
         ]
     },
     include_package_data=True,
     install_requires=requirements,
     license="BSD license",
     zip_safe=False,
-    keywords='ec2_reaper',
+    keywords='ec2-reaper',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
@@ -59,6 +59,6 @@ setup(
         'Programming Language :: Python :: 3.5',
     ],
     test_suite='tests',
-    tests_require=test_requirements,
+    tests_require=requirements_dev+requirements,
     setup_requires=setup_requirements,
 )

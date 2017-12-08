@@ -7,12 +7,12 @@ import json
 import logging
 import botocore
 import sys
+from datetime import datetime
 
 log = logging.getLogger()
-log.setLevel(logging.WARNING)
+log.setLevel(logging.INFO)
 ch = logging.StreamHandler()
 log.addHandler(ch)
-
 
 def _is_py3():
     return True if sys.version_info >= (3, 0) else False
@@ -55,6 +55,8 @@ def main(tagfilterstr, min_age, dry_run, regions):
         log.setLevel(logging.DEBUG)
         log.warning('Dry Run mode enabled.')
         log.debug('Verbose output enabled.')
+    logging.getLogger('botocore').setLevel(logging.WARNING)
+    logging.getLogger('boto3').setLevel(logging.WARNING)
 
     tagfilter = json.loads(tagfilterstr)
 
@@ -69,9 +71,13 @@ def main(tagfilterstr, min_age, dry_run, regions):
                    isinstance(r, unicode) else r for r in regions]
         log.debug('Searching the following regions: {}'.format(regions))
 
-    reaped = len(ec2_reaper.reap(tagfilter, min_age=min_age, debug=dry_run, regions=regions))
+    log.info('Started ec2-reaper at {}'.format(datetime.now()))
+    reaplog = ec2_reaper.reap(tagfilter, min_age=min_age, debug=dry_run, regions=regions)
+    log.info('{} instances reaped out of {} matched in {} regions.'.format(
+        len([i for i in reaplog if i['reaped']]), len(reaplog),
+        len(regions) if regions else 'all'))
 
-    if reaped > 0:
+    if len(reaplog) > 0:
         sys.exit(0)
     else:
         sys.exit(1)

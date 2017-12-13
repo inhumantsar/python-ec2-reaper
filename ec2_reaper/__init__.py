@@ -4,6 +4,6 @@
 
 __author__ = """Shaun Martin"""
 __email__ = 'shaun@samsite.ca'
-__version__ = '0.1.2'
+__version__ = '0.1.3'
 
 from ec2_reaper import reap

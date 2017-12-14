@@ -11,8 +11,12 @@ __version__ = '0.1.3'
 if sys.version_info >= (3, 0):
     from ec2_reaper.ec2_reaper import reap
     from ec2_reaper.ec2_reaper import DEFAULT_TAG_MATCHER
+    from ec2_reaper.ec2_reaper import DEFAULT_MIN_AGE
+    from ec2_reaper.ec2_reaper import DEFAULT_REGIONS
     from ec2_reaper.ec2_reaper import LOCAL_TZ
 else:
     from ec2_reaper import reap
     from ec2_reaper import DEFAULT_TAG_MATCHER
+    from ec2_reaper import DEFAULT_MIN_AGE
+    from ec2_reaper import DEFAULT_REGIONS
     from ec2_reaper import LOCAL_TZ

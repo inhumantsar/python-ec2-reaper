@@ -9,6 +9,8 @@ import time
 """EC2 Reaper"""
 
 DEFAULT_TAG_MATCHER = [{"tag": "Name", "includes": [], "excludes": ["*"]}]
+DEFAULT_MIN_AGE = 300
+DEFAULT_REGIONS = None
 
 # set up localtime for logging
 LOCAL_TZ = pytz.timezone(time.tzname[time.localtime().tm_isdst])
@@ -16,7 +18,7 @@ LOCAL_TZ_NAME = LOCAL_TZ.tzname(datetime.datetime.now())
 
 log = logging.getLogger()
 
-def reap(tags=None, min_age=300, regions=None, debug=True):
+def reap(tags=None, min_age=DEFAULT_MIN_AGE, regions=DEFAULT_REGIONS, debug=True):
     """reap - Terminate running instances matching tag requirements and a minimum age
 
     tags: List of dicts like `{'tag': 'sometag', include=['val1', ...], exclude=['val2', ...]}`

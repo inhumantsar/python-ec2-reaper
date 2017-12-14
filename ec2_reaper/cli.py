@@ -14,17 +14,15 @@ log.setLevel(logging.INFO)
 ch = logging.StreamHandler()
 log.addHandler(ch)
 
-def _is_py3():
-    return True if sys.version_info >= (3, 0) else False
 
 try:
-    if _is_py3():
-        from ec2_reaper import ec2_reaper
-    else:
-        import ec2_reaper
+    import ec2_reaper
 except botocore.exceptions.NoCredentialsError as e:
     log.error('boto3 was unable to find any AWS credentials. Please run `aws configure`')
     sys.exit(1)
+
+def _is_py3():
+    return sys.version_info >= (3, 0)
 
 @click.command()
 @click.argument('tagfilterstr', type=click.STRING, default=json.dumps(ec2_reaper.DEFAULT_TAG_MATCHER))

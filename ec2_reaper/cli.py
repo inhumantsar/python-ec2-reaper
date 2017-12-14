@@ -71,7 +71,7 @@ def main(tagfilterstr, min_age, dry_run, regions):
 
     log.info('Started ec2-reaper at {}'.format(datetime.now()))
     reaplog = ec2_reaper.reap(tagfilter, min_age=min_age, debug=dry_run, regions=regions)
-    log.info('{} instances reaped out of {} matched in {} regions.'.format(
+    log.info('{} instances reaped out of {} found in {} regions.'.format(
         len([i for i in reaplog if i['reaped']]), len(reaplog),
         len(regions) if regions else 'all'))
 

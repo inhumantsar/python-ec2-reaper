@@ -25,7 +25,7 @@ def _is_py3():
     return sys.version_info >= (3, 0)
 
 @click.command()
-@click.argument('tagfilterstr', type=click.STRING,DEFAULT_TAG_MATCHER default=json.dumps(ec2_reaper.DEFAULT_TAG_MATCHER))
+@click.argument('tagfilterstr', type=click.STRING, default=json.dumps(ec2_reaper.DEFAULT_TAG_MATCHER))
 @click.option('--min-age', '-m', 'min_age', default=ec2_reaper.DEFAULT_MIN_AGE, type=click.INT,
     help='Instance must be (int)N seconds old before it will be considered for termination. Default: 300')
 @click.option('--dry-run', '-d', 'dry_run', is_flag=True,

@@ -33,8 +33,8 @@ setup(
     long_description=readme + '\n\n' + history,
     author="Shaun Martin",
     author_email='shaun@samsite.ca',
-    url='https://github.com/inhumantsar/ec2_reaper',
-    packages=find_packages(include=['ec2_reaper']),
+    url='https://github.com/inhumantsar/python-ec2-reaper',
+    packages=['ec2_reaper'],
     entry_points={
         'console_scripts': [
             'ec2-reaper=ec2_reaper.cli:main'

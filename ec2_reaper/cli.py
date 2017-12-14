@@ -14,17 +14,15 @@ log.setLevel(logging.INFO)
 ch = logging.StreamHandler()
 log.addHandler(ch)
 
-def _is_py3():
-    return True if sys.version_info >= (3, 0) else False
 
 try:
-    if _is_py3():
-        from ec2_reaper import ec2_reaper
-    else:
-        import ec2_reaper
+    import ec2_reaper
 except botocore.exceptions.NoCredentialsError as e:
     log.error('boto3 was unable to find any AWS credentials. Please run `aws configure`')
     sys.exit(1)
+
+def _is_py3():
+    return sys.version_info >= (3, 0)
 
 @click.command()
 @click.argument('tagfilterstr', type=click.STRING, default=json.dumps(ec2_reaper.DEFAULT_TAG_MATCHER))
@@ -73,7 +71,7 @@ def main(tagfilterstr, min_age, dry_run, regions):
 
     log.info('Started ec2-reaper at {}'.format(datetime.now()))
     reaplog = ec2_reaper.reap(tagfilter, min_age=min_age, debug=dry_run, regions=regions)
-    log.info('{} instances reaped out of {} matched in {} regions.'.format(
+    log.info('{} instances reaped out of {} found in {} regions.'.format(
         len([i for i in reaplog if i['reaped']]), len(reaplog),
         len(regions) if regions else 'all'))
 

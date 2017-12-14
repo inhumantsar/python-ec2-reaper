@@ -5,6 +5,7 @@
 
 import pytest
 import boto3
+import sys
 import time
 from datetime import datetime, timedelta
 
@@ -13,6 +14,7 @@ from click.testing import CliRunner
 
 from ec2_reaper import ec2_reaper
 from ec2_reaper import cli
+
 
 
 import logging

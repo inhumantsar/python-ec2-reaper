@@ -11,12 +11,8 @@ import time
 DEFAULT_TAG_MATCHER = [{"tag": "Name", "includes": [], "excludes": ["*"]}]
 
 # set up localtime for logging
-LOCAL_TZ_NAME = os.environ.get('LOCAL_TZ_NAME', None)
-if not LOCAL_TZ_NAME:
-    LOCAL_TZ = pytz.timezone(time.tzname[time.localtime().tm_isdst])
-    LOCAL_TZ_NAME = LOCAL_TZ.tzname(datetime.datetime.now())
-else:
-    LOCAL_TZ = pytz.timezone(LOCAL_TZ_NAME)
+LOCAL_TZ = pytz.timezone(time.tzname[time.localtime().tm_isdst])
+LOCAL_TZ_NAME = LOCAL_TZ.tzname(datetime.datetime.now())
 
 log = logging.getLogger()
 
@@ -29,7 +25,7 @@ def reap(tags=None, min_age=300, regions=None, debug=True):
     debug: If True, perform dry-run by skipping terminate API calls. Default: True
 
     Returns a list of dicts with instance that partially matches and their reap status.
-    [{'id': i.id, 'tag_match': ct, 'age_match': ca, 'tags': i.tags, 'launch_time': i.launch_time, 'reaped': False}]
+    [{'id': i.id, 'tag_match': True, 'age_match': False, 'tags': i.tags, 'launch_time': i.launch_time, 'reaped': False, 'region': i.region}]
 
     Behaviour:
     - An instance is reaped if tag value is in the include list
@@ -68,7 +64,7 @@ def reap(tags=None, min_age=300, regions=None, debug=True):
             if ct or ca:
                 reaperlog_add = {'id': i.id, 'tag_match': ct, 'age_match': ca,
                                  'tags': i.tags, 'launch_time': i.launch_time,
-                                 'reaped': False}
+                                 'reaped': False, 'region': region}
 
             if ct and not ca:
                 log.warning('The following instance is a match, but isn\'t old enough yet: {} (launched at {} with tags: {})'.format(i.id, local_time, i.tags))

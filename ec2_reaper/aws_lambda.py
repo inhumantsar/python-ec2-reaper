@@ -24,7 +24,7 @@ TAG_MATCHER = json.loads(TAG_MATCHER) if isinstance(TAG_MATCHER, strclasses) els
 
 SLACK_ENDPOINT = os.environ.get('SLACK_ENDPOINT', None)
 
-DEBUG = os.environ.get('DEBUG', False)
+DEBUG = os.environ.get('DEBUG', True)
 if DEBUG:
     log.setLevel(logging.DEBUG)
     logging.getLogger('botocore').setLevel(logging.INFO)
@@ -83,7 +83,7 @@ def handler(event, context):
     else:
         log.debug('Searching the following regions: {}'.format(REGIONS))
 
-    reaperlog = reap(TAG_MATCHER, min_age=MIN_AGE, regions=REGIONS)
+    reaperlog = reap(TAG_MATCHER, min_age=MIN_AGE, regions=REGIONS, debug=DEBUG)
 
     # notify slack if anything was reaped
     reaped = [i for i in reaperlog if i['reaped']]

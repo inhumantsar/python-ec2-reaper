@@ -62,7 +62,7 @@ def _notify(msg, attachments=[]):
         log.warning('Slack endpoint not configured!')
         return -1
 
-    data = {'text': msg, 'attachements': attachments}
+    data = {'text': msg, 'attachments': attachments}
     headers = {'Content-Type': 'application/json'}
     r = requests.post(SLACK_ENDPOINT, headers=headers,
                       data=json.dumps(data, cls=DateTimeJSONEncoder))
@@ -90,7 +90,7 @@ def handler(event, context):
     log.info('{} instances reaped out of {} matched in {} regions.'.format(
         len(reaped), len(reaperlog), len(REGIONS) if REGIONS else 'all'))
     if len(reaped) > 0:
-        msg = "The following instances have been terminated."
+        msg = "The following instances have been terminated:"
         attachments = []
         for i in reaped:
             attachments.append({

@@ -9,28 +9,34 @@ EC2 Reaper
 .. image:: https://img.shields.io/travis/inhumantsar/python-ec2-reaper.svg
         :target: https://travis-ci.org/inhumantsar/python-ec2-reaper
 
-.. image:: https://pyup.io/repos/github/inhumantsar/ec2_reaper/shield.svg
-     :target: https://pyup.io/repos/github/inhumantsar/ec2_reaper/
+.. image:: https://pyup.io/repos/github/inhumantsar/python-ec2-reaper/shield.svg
+     :target: https://pyup.io/repos/github/inhumantsar/python-ec2-reaper/
      :alt: Updates
 
 
 CLI & module for terminating instances that match tag and age requirements.
 
-
-* Free software: BSD license
-* Documentation: https://ec2-reaper.readthedocs.io.
-
-Testing
----------
-
-    docker run --rm -it -w /workspace -v $(pwd):/workspace python:2 /bin/bash
-    $ pip install -r requirements.txt -r requirements_dev.txt
-    $ tox -e py27
-
 Features
 ---------
 
-* TODO
+* Searches all (or specified) regions for instances.
+* Matches instances against a tag pattern.
+* Allows instances a grace period before termination.
+* Can be used as a Python module, CLI application, or an AWS Lambda function
+
+Usage
+---------
+
+Tag Matchers
+~~~~~~~~~~~~
+
+`[{"tag": "Name", "includes": [], "excludes": ["*"]}]`
+
+This is the default tag matcher and it will match anything that lacks a `Name` tag.
+
+To terminate any instance named "cirunner", the filter would look like so:
+
+`[{"tag": "Name", "includes": ["cirunner"], "excludes": []}]`
 
 Credits
 ---------

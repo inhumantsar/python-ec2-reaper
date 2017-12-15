@@ -14,8 +14,6 @@ def _is_py3():
 
 log = logging.getLogger(__name__)
 
-DEFAULT_SLACK_ENDPOINT = ''
-
 MIN_AGE = os.environ.get('MIN_AGE', ec2_reaper.DEFAULT_MIN_AGE)
 REGIONS = os.environ.get('REGIONS', ec2_reaper.DEFAULT_REGIONS)
 REGIONS = REGIONS.split(' ') if isinstance(REGIONS, str) else REGIONS
@@ -36,7 +34,7 @@ else:
     logging.getLogger('botocore').setLevel(logging.WARNING)
     logging.getLogger('boto3').setLevel(logging.WARNING)
 
-# this is necessary because tz-aware dts aren't JSON serializable by default
+# so that we can send tz-aware datetimes through json
 class DateTimeJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, datetime):
@@ -47,7 +45,7 @@ def _respond(body, error=True, headers=None, status_code=500):
     o = {'statusCode': status_code, 'body': body}
     if headers:
         o['headers'] = headers
-    return json.dumps(o, cls=DateTimeJSONEncoder)
+    return o
 
 def _get_expires(launch_time, min_age=MIN_AGE):
     # if launch_time is naive, assume UTC
@@ -66,7 +64,8 @@ def _notify(msg, attachments=[]):
 
     data = {'text': msg, 'attachements': attachments}
     headers = {'Content-Type': 'application/json'}
-    r = requests.post(SLACK_ENDPOINT, json=data, headers=headers)
+    r = requests.post(SLACK_ENDPOINT, headers=headers,
+                      data=json.dumps(data, cls=DateTimeJSONEncoder))
 
     if r.status_code != 200:
         log.error('Slack notification failed: (HTTP {}) {}'.format(r.status_code, r.text))
@@ -127,4 +126,7 @@ def handler(event, context):
             })
         _notify(msg, attachments)
 
-    return _respond(reaperlog, error=False, status_code=200)
+    r = {'reaped': len(reaped), 'matches_under_min_age': len(too_young),
+         'tag_matches': len([i for i in reaperlog if i['tag_match']]),
+         'instances': len(reaperlog), 'log': reaperlog}
+    return _respond(r, error=False, status_code=200)

@@ -10,10 +10,11 @@ logging.basicConfig(level=logging.DEBUG)
 logging.getLogger('botocore').setLevel(logging.INFO)
 logging.getLogger('boto3').setLevel(logging.INFO)
 
-if sys.version_info >= (3, 0):
-    from unittest.mock import patch
-else:
+if sys.version_info < (3, 0) or (sys.version_info >= (3, 5) and
+                                 sys.version_info < (3, 6)):
     from mock import patch
+else:
+    from unittest.mock import patch
 
 # when no results, handler should have called reap, *not* called (slack) notify,
 # and should have returned a happy response json obj,
@@ -21,12 +22,13 @@ else:
 @patch.object(aws_lambda, '_notify')
 def test_reap_no_results(mock_notify, mock_reap):
     mock_reap.return_value = []
-    r = json.loads(aws_lambda.handler({}, {}))
+    r = aws_lambda.handler({}, {})
 
     mock_notify.assert_not_called()
     mock_reap.assert_called_once()
     assert r['statusCode'] == 200
-    assert r['body'] == []
+    assert r['body']['log'] == []
+    assert r['body']['reaped'] == 0
 
 # with pos and neg results, handler should have called reap,
 # called (slack) notify, and should have returned a happy response json obj with
@@ -46,9 +48,10 @@ def test_reap_2neg_1pos(mock_notify, mock_reap):
          'launch_time': match_time, 'reaped': True, 'region': 'us-east-1'},
     ]
     mock_reap.return_value = mock_reap_results
-    r = json.loads(aws_lambda.handler({}, {}))
+    r = aws_lambda.handler({}, {})
 
     mock_notify.assert_called()
     mock_reap.assert_called_once()
     assert r['statusCode'] == 200
-    assert r['body'] == json.loads(json.dumps(mock_reap_results, cls=aws_lambda.DateTimeJSONEncoder))
+    assert r['body']['log'] == mock_reap_results
+    assert r['body']['reaped'] == 1

@@ -10,10 +10,11 @@ logging.basicConfig(level=logging.DEBUG)
 logging.getLogger('botocore').setLevel(logging.INFO)
 logging.getLogger('boto3').setLevel(logging.INFO)
 
-if sys.version_info >= (3, 0):
-    from unittest.mock import patch
-else:
+if sys.version_info < (3, 0) or (sys.version_info >= (3, 5) and
+                                 sys.version_info < (3, 6)):
     from mock import patch
+else:
+    from unittest.mock import patch
 
 # when no results, handler should have called reap, *not* called (slack) notify,
 # and should have returned a happy response json obj,

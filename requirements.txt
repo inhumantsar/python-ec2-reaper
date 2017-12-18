@@ -1,4 +1,4 @@
 boto3==1.5.1
-pytz
+pytz==2017.3
 slacker
 click

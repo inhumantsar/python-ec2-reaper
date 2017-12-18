@@ -1,4 +1,4 @@
-boto3
-pytz
-slacker
-click
+boto3==1.5.1
+pytz==2017.3
+slacker==0.9.60
+click==6.7

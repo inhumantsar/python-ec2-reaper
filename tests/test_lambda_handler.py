@@ -61,7 +61,7 @@ def test_reap_2neg_1pos(mock_notify, mock_reap):
     mock_notify.assert_called()
     mock_reap.assert_called_once()
     assert r['statusCode'] == 200
-    assert r['body']['log'] == mock_reap_results
+    assert r['body']['log'] == json.loads(json.dumps(mock_reap_results, cls=aws_lambda.DateTimeJSONEncoder))
     assert r['body']['reaped'] == 1
 
 # env vars come in as strings, so bools like DEBUG need testing

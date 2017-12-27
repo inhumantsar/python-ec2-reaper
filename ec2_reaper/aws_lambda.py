@@ -25,10 +25,15 @@ TAG_MATCHER = json.loads(TAG_MATCHER) if isinstance(TAG_MATCHER, strclasses) els
 SLACK_ENDPOINT = os.environ.get('SLACK_ENDPOINT', None)
 
 DEBUG = os.environ.get('DEBUG', True)
+log.debug('startup: got value for DEBUG: {} ({})'.format(DEBUG, type(DEBUG)))
+if isinstance(DEBUG, str):
+    DEBUG = False if DEBUG.lower() == 'false' else True
+
 if DEBUG:
     log.setLevel(logging.DEBUG)
     logging.getLogger('botocore').setLevel(logging.INFO)
     logging.getLogger('boto3').setLevel(logging.INFO)
+    log.debug('startup: debug logging on')
 else:
     log.setLevel(logging.INFO)
     logging.getLogger('botocore').setLevel(logging.WARNING)

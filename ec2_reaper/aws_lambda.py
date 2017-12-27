@@ -42,9 +42,12 @@ class DateTimeJSONEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, o)
 
 def _respond(body, error=True, headers=None, status_code=500):
-    o = {'statusCode': status_code, 'body': body}
+    o = {'statusCode': status_code}
     if headers:
         o['headers'] = headers
+
+    # just in case body contains untranslatable datetimes
+    o['body'] = json.loads(json.dumps(body, cls=DateTimeJSONEncoder))
     return o
 
 def _get_expires(launch_time, min_age=MIN_AGE):

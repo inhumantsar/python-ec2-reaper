@@ -2,6 +2,7 @@ import logging
 import json
 import sys
 from datetime import datetime, timedelta
+import os
 
 from ec2_reaper import aws_lambda
 from ec2_reaper import LOCAL_TZ
@@ -10,11 +11,18 @@ logging.basicConfig(level=logging.DEBUG)
 logging.getLogger('botocore').setLevel(logging.INFO)
 logging.getLogger('boto3').setLevel(logging.INFO)
 
+# mock has some weirdness in python 3.3, 3.5, and 3.6
 if sys.version_info < (3, 0) or (sys.version_info >= (3, 5) and
                                  sys.version_info < (3, 6)):
     from mock import patch
 else:
     from unittest.mock import patch
+
+# py 2.7 has reload built in but it's moved around a bit in py3+
+if sys.version_info >= (3, 0) and sys.version_info < (3, 4):
+    from imp import reload
+elif sys.version_info >= (3, 4):
+    from importlib import reload
 
 # when no results, handler should have called reap, *not* called (slack) notify,
 # and should have returned a happy response json obj,
@@ -55,3 +63,27 @@ def test_reap_2neg_1pos(mock_notify, mock_reap):
     assert r['statusCode'] == 200
     assert r['body']['log'] == mock_reap_results
     assert r['body']['reaped'] == 1
+
+# env vars come in as strings, so bools like DEBUG need testing
+def test_debug_envvar():
+    from ec2_reaper import aws_lambda as al
+    # true
+    os.environ['DEBUG'] = 'true'
+    reload(al)
+    assert al.DEBUG == True
+    os.environ['DEBUG'] = 'True'
+    reload(al)
+    assert al.DEBUG == True
+
+    # default to safety
+    os.environ['DEBUG'] = 'mooooooooo'
+    reload(al)
+    assert al.DEBUG == True
+
+    # false
+    os.environ['DEBUG'] = 'False'
+    reload(al)
+    assert al.DEBUG == False
+    os.environ['DEBUG'] = 'false'
+    reload(al)
+    assert al.DEBUG == False

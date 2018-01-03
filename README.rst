@@ -92,8 +92,6 @@ A stock handler is included with the module, so very little is needed to deploy 
 serverless.yml
 
 .. code-block:: yaml
-   :linenos:
-   :caption: serverless.yml
 
     service: ec2-reaper
 
@@ -150,11 +148,10 @@ serverless.yml
       # takes care of bundling python requirements for us.
       - serverless-python-requirements
 
+
 handler.py
 
 .. code-block:: python
-   :linenos:
-   :caption: handler.py
 
     import ec2_reaper
 
@@ -165,7 +162,6 @@ handler.py
 requirements.txt
 
 .. code-block::
-   :caption: requirements.txt
 
    ec2-reaper>=0.1.8
 

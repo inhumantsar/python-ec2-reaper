@@ -8,7 +8,7 @@ coverage==4.5.3
 Sphinx==2.0.1
 cryptography==2.6.1
 PyYAML==5.1
-pytest==3.4.0
+pytest==4.4.1
 pytest-runner==4.0
 moto==1.2.0
 mock==2.0.0

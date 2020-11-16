@@ -1,4 +1,4 @@
 boto3==1.16.18
-pytz==2018.3
+pytz==2020.4
 slacker==0.9.60
 click==6.7

@@ -1,4 +1,4 @@
 boto3==1.21.42
 pytz==2022.1
 slacker==0.14.0
-click==6.7
+click==8.1.2

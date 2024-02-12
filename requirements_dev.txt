@@ -9,6 +9,6 @@ Sphinx==7.2.6
 cryptography==42.0.2
 PyYAML==6.0.1
 pytest==8.0.0
-pytest-runner==4.0
+pytest-runner==6.0.1
 moto==1.2.0
 mock==2.0.0

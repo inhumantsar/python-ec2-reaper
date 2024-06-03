@@ -10,5 +10,5 @@ cryptography==42.0.7
 PyYAML==6.0.1
 pytest==8.2.1
 pytest-runner==6.0.1
-moto==1.2.0
+moto==5.0.9
 mock==2.0.0

@@ -11,4 +11,4 @@ PyYAML==6.0.1
 pytest==8.2.2
 pytest-runner==6.0.1
 moto==5.0.10
-mock==2.0.0
+mock==5.1.0
